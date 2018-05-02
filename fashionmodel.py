@@ -1,131 +1,129 @@
+from __future__ import print_function
+
+# Import MNIST data
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+
+# Import fashion data
+# from PIL import Image
+# images = []
+# for i in range(1):
+#     im = Image.open('../../../fashion_images_resized/dress'+str(i+1)+'.jpg')
+#     images.append(list(im.getdata()))
+
+# print(images)
+
 import tensorflow as tf
 
-hello = tf.constant('Hello, TensorFlow!')
+def _parse_function(filename):
+  image_string = tf.read_file(filename)
+  image_decoded = tf.image.decode_image(image_string)
+  image_resized = tf.image.resize_images(image_decoded, [29, 39])
+  return image_resized
 
-sess = tf.Session()
+filenames_list = []
+for i in range(150):
+	filenames_list.append("../../../fashion_images_resized/dress"+str(i+1)+".jpg")
 
-print sess.run(hello)
+# A vector of filenames.
+filenames = tf.constant(filenames_list)
 
-# class OneHotLayer(lasagne.layers.Layer):
-#     def __init__(self, incoming, nb_class, **kwargs):
-#         super(OneHotLayer, self).__init__(incoming, **kwargs)
-#         self.nb_class = nb_class
+# `labels[i]` is the label for the image in `filenames[i].
+# labels = tf.constant([0, 37, ...])
 
-#     def get_output_for(self, incoming, **kwargs):
-#         return theano.tensor.extra_ops.to_one_hot(incoming, self.nb_class)
+dataset = tf.data.Dataset.from_tensor_slices((filenames))
+dataset = dataset.map(_parse_function)
 
-#     def get_output_shape_for(self, input_shape):
-#         return (input_shape[0], self.nb_class)
+# print(mnist)
+# print(type(mnist))
+
+# Parameters
+learning_rate = 0.1
+num_steps = 500
+batch_size = 128
+display_step = 100
+
+# Network Parameters
+n_hidden_1 = 1024 # 1st layer number of neurons: 256
+n_hidden_2 = 1024 # 2nd layer number of neurons: 256
+n_hidden_3 = 1024 # 3rd layer number of neurons: 256
+n_hidden_4 = 1024 # 4th layer number of neurons: 256
+num_input = 784 # MNIST data input (img shape: 28*28) - 29*39*3 for saks dress images resized
+num_classes = 10 # MNIST total classes (0-9 digits)
+
+# tf Graph input
+X = tf.placeholder("float", [None, num_input])
+Y = tf.placeholder("float", [None, num_classes])
+
+# Store layers weight & bias
+weights = {
+    'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1])),
+    'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
+    'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3])),
+    'h4': tf.Variable(tf.random_normal([n_hidden_3, n_hidden_4])),
+    'out': tf.Variable(tf.random_normal([n_hidden_4, num_classes]))
+}
+biases = {
+    'b1': tf.Variable(tf.random_normal([n_hidden_1])),
+    'b2': tf.Variable(tf.random_normal([n_hidden_2])),
+    'b3': tf.Variable(tf.random_normal([n_hidden_3])),
+    'b4': tf.Variable(tf.random_normal([n_hidden_4])),
+    'out': tf.Variable(tf.random_normal([num_classes]))
+}
+
+# Create model
+def neural_net(x):
+    # Hidden fully connected layer with 256 neurons
+    layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
+    # Hidden fully connected layer with 256 neurons
+    layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
+    # Hidden fully connected layer with 256 neurons
+    layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
+    # Hidden fully connected layer with 256 neurons
+    layer_4 = tf.add(tf.matmul(layer_3, weights['h4']), biases['b4'])
+    # Output fully connected layer with a neuron for each class
+    out_layer = tf.matmul(layer_4, weights['out']) + biases['out']
+    return out_layer
 
 
-# def loss(a, b):
-#     # return 0.5 * abs(a-b) + 0.5 * (a - b)**2
-#     return abs(a-b)
+# Construct model
+logits = neural_net(X)
+
+# Define loss and optimizer
+loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+    logits=logits, labels=Y))
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+train_op = optimizer.minimize(loss_op)
+
+# Evaluate model (with test logits, for dropout to be disabled)
+correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(Y, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+# Initialize the variables (i.e. assign their default value)
+init = tf.global_variables_initializer()
 
 
-# class Model(object):
-#     def __init__(self, n=None, k=62, wh=64*64, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
-#         self.n, self.k, self.d = n, k, d
-#         self.target = T.matrix('target')
+# Start training
+with tf.Session() as sess:
 
-#         if artificial_font:
-#             self.input_font = T.matrix('input_font')
-#             input_font_bottleneck = lasagne.layers.InputLayer(shape=(None, d), input_var=self.input_font, name='input_font_emb')
-#         else:
-#             self.input_font = T.ivector('input_font')
-#             input_font = lasagne.layers.InputLayer(shape=(None,), input_var=self.input_font, name='input_font')
-#             input_font_one_hot = OneHotLayer(input_font, n)
-#             input_font_bottleneck = lasagne.layers.DenseLayer(input_font_one_hot, d, name='input_font_bottleneck', nonlinearity=None, b=None)
+    # Run the initializer
+    sess.run(init)
 
-#         self.input_char = T.ivector('input_char')
-#         input_char = lasagne.layers.InputLayer(shape=(None,), input_var=self.input_char, name='input_char')
-#         input_char_one_hot = OneHotLayer(input_char, k)
+    for step in range(1, num_steps+1):
+        batch_x, batch_y = mnist.train.next_batch(batch_size)
+        # Run optimization op (backprop)
+        sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
+        if step % display_step == 0 or step == 1:
+            # Calculate batch loss and accuracy
+            loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
+                                                                 Y: batch_y})
+            print("Step " + str(step) + ", Minibatch Loss= " + \
+                  "{:.4f}".format(loss) + ", Training Accuracy= " + \
+                  "{:.3f}".format(acc))
 
-#         input_font_bottleneck_noised = lasagne.layers.GaussianNoiseLayer(input_font_bottleneck, sigma=font_noise)
-#         network = lasagne.layers.ConcatLayer([input_font_bottleneck_noised, input_char_one_hot], name='input_concat')
-#         for i in xrange(4):
-#             network = lasagne.layers.DenseLayer(network, D, name='dense_%d' % i, nonlinearity=lasagne.nonlinearities.leaky_rectify)
+    print("Optimization Finished!")
 
-#         network = lasagne.layers.DenseLayer(network, wh, nonlinearity=lasagne.nonlinearities.sigmoid, name='output_sigmoid')
-#         self.network = network
-#         self.prediction_train = lasagne.layers.get_output(network, deterministic=False)
-#         self.prediction_test = lasagne.layers.get_output(network, deterministic=True)
-#         print self.prediction_train.dtype
-#         self.loss_train = loss(self.prediction_train, self.target).mean()
-#         self.loss_test = loss(self.prediction_test, self.target).mean()
-#         self.reg = lasagne.regularization.regularize_network_params(self.network, lasagne.regularization.l2) * lambd
-#         self.input_font_bottleneck = input_font_bottleneck
-
-#     def get_train_fn(self):
-#         print 'compiling training fn'
-#         learning_rate = T.scalar('learning_rate')
-#         params = lasagne.layers.get_all_params(self.network, trainable=True)
-#         updates = lasagne.updates.nesterov_momentum(self.loss_train + self.reg, params, learning_rate=learning_rate, momentum=lasagne.utils.floatX(0.9))
-#         return theano.function([learning_rate, self.input_font, self.input_char, self.target], [self.loss_train, self.reg], updates=updates)
-
-#     def get_test_fn(self):
-#         print 'compiling testing fn'
-#         params = lasagne.layers.get_all_params(self.network, trainable=False)
-#         return theano.function([self.input_font, self.input_char, self.target], [self.loss_test, self.reg])
-
-#     def get_run_fn(self):
-#         return theano.function([self.input_font, self.input_char], self.prediction_test)
-
-#     def try_load(self):
-#         if not os.path.exists('model.pickle.gz'):
-#             return
-#         print 'loading model...'
-#         values = pickle.load(gzip.open('model.pickle.gz'))
-#         for p in lasagne.layers.get_all_params(self.network):
-#             if p.name not in values:
-#                 print 'dont have value for', p.name
-#             else:
-#                 value = values[p.name]
-#                 if p.get_value().shape != value.shape:
-#                     print p.name, ':', p.get_value().shape, 'and', value.shape, 'have different shape!!!'
-#                 else:
-#                     p.set_value(value.astype(theano.config.floatX))
-
-#     def save(self):
-#         print 'saving model...'
-#         params = {}
-#         for p in lasagne.layers.get_all_params(self.network):
-#             params[p.name] = p.get_value()
-#         f = gzip.open('model.pickle.gz', 'w')
-#         pickle.dump(params, f)
-#         f.close()
-
-#     def get_font_embeddings(self):
-#         data = pickle.load(gzip.open('model.pickle.gz'))
-#         return data['input_font_bottleneck.W']
-
-#     def sets(self):
-#         dataset = []
-#         for i in xrange(self.n):
-#             for j in xrange(self.k):
-#                 dataset.append((i, j))
-
-#         train_set, test_set = cross_validation.train_test_split(dataset, test_size=0.10, random_state=0)
-#         return train_set, test_set
-
-# def get_data():
-#     if not os.path.exists('fonts.hdf5'):
-#         wget.download('https://s3.amazonaws.com/erikbern/fonts.hdf5')
-
-#     f = h5py.File('fonts.hdf5', 'r')
-#     return f['fonts']
-
-# def draw_grid(data, cols=None):
-#     n = data.shape[0]
-#     if cols is None:
-#         cols = int(math.ceil(n**0.5))
-#     rows = int(math.ceil(1.0 * n / cols))
-#     data = data.reshape((n, 64, 64))
-
-#     img = PIL.Image.new('L', (cols * 64, rows * 64), 255)
-#     for z in xrange(n):
-#         x, y = z % cols, z // cols
-#         img_char = PIL.Image.fromarray(numpy.uint8(((1.0 - data[z]) * 255)))
-#         img.paste(img_char, (x * 64, y * 64))
-
-#     return img
+    # Calculate accuracy for MNIST test images
+    print("Testing Accuracy:", \
+        sess.run(accuracy, feed_dict={X: mnist.test.images,
+                                      Y: mnist.test.labels}))

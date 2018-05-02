@@ -7,8 +7,11 @@ import numpy
 import h5py
 import wget
 import gzip
+import glob
 from sklearn import cross_validation
 import math
+# import tensorflow as tf
+import numpy as np
 import PIL, PIL.Image
 
 class OneHotLayer(lasagne.layers.Layer):
@@ -29,8 +32,10 @@ def loss(a, b):
 
 
 class Model(object):
-    def __init__(self, n=None, k=62, wh=64*64, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
+    # def __init__(self, n=None, k=62, wh=64*64, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
+    def __init__(self, n=None, k=1,  wh=64*64, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
         self.n, self.k, self.d = n, k, d
+        # self.n, self.d = n, d
         self.target = T.matrix('target')
 
         if artificial_font:
@@ -42,12 +47,18 @@ class Model(object):
             input_font_one_hot = OneHotLayer(input_font, n)
             input_font_bottleneck = lasagne.layers.DenseLayer(input_font_one_hot, d, name='input_font_bottleneck', nonlinearity=None, b=None)
 
-        self.input_char = T.ivector('input_char')
-        input_char = lasagne.layers.InputLayer(shape=(None,), input_var=self.input_char, name='input_char')
-        input_char_one_hot = OneHotLayer(input_char, k)
+        # self.input_font = T.matrix('input_font')
+        # input_font_bottleneck = lasagne.layers.InputLayer(shape=(None, d), input_var=self.input_font, name='input_font_emb')
 
-        input_font_bottleneck_noised = lasagne.layers.GaussianNoiseLayer(input_font_bottleneck, sigma=font_noise)
-        network = lasagne.layers.ConcatLayer([input_font_bottleneck_noised, input_char_one_hot], name='input_concat')
+        # self.input_char = T.ivector('input_char')
+        # input_char = lasagne.layers.InputLayer(shape=(None,), input_var=self.input_char, name='input_char')
+        # input_char_one_hot = OneHotLayer(input_char, k)
+
+        # input_font_bottleneck_noised = lasagne.layers.GaussianNoiseLayer(input_font_bottleneck, sigma=font_noise)
+        # network = lasagne.layers.ConcatLayer([input_font_bottleneck_noised, input_char_one_hot], name='input_concat')
+        network = lasagne.layers.GaussianNoiseLayer(input_font_bottleneck, sigma=font_noise)
+
+        # 4 fully connected layers
         for i in xrange(4):
             network = lasagne.layers.DenseLayer(network, D, name='dense_%d' % i, nonlinearity=lasagne.nonlinearities.leaky_rectify)
 
@@ -66,21 +77,24 @@ class Model(object):
         learning_rate = T.scalar('learning_rate')
         params = lasagne.layers.get_all_params(self.network, trainable=True)
         updates = lasagne.updates.nesterov_momentum(self.loss_train + self.reg, params, learning_rate=learning_rate, momentum=lasagne.utils.floatX(0.9))
-        return theano.function([learning_rate, self.input_font, self.input_char, self.target], [self.loss_train, self.reg], updates=updates)
+        # return theano.function([learning_rate, self.input_font, self.input_char, self.target], [self.loss_train, self.reg], updates=updates)
+        return theano.function([learning_rate, self.input_font, self.target], [self.loss_train, self.reg], updates=updates)
 
     def get_test_fn(self):
         print 'compiling testing fn'
         params = lasagne.layers.get_all_params(self.network, trainable=False)
-        return theano.function([self.input_font, self.input_char, self.target], [self.loss_test, self.reg])
+        # return theano.function([self.input_font, self.input_char, self.target], [self.loss_test, self.reg])
+        return theano.function([self.input_font, self.target], [self.loss_test, self.reg])
 
     def get_run_fn(self):
-        return theano.function([self.input_font, self.input_char], self.prediction_test)
+        # return theano.function([self.input_font, self.input_char], self.prediction_test)
+        return theano.function([self.input_font], self.prediction_test)
 
     def try_load(self):
-        if not os.path.exists('model.pickle.gz'):
+        if not os.path.exists('../model.pickle.gz'):
             return
         print 'loading model...'
-        values = pickle.load(gzip.open('model.pickle.gz'))
+        values = pickle.load(gzip.open('../model.pickle.gz'))
         for p in lasagne.layers.get_all_params(self.network):
             if p.name not in values:
                 print 'dont have value for', p.name
@@ -96,29 +110,46 @@ class Model(object):
         params = {}
         for p in lasagne.layers.get_all_params(self.network):
             params[p.name] = p.get_value()
-        f = gzip.open('model.pickle.gz', 'w')
+        f = gzip.open('../model.pickle.gz', 'w')
         pickle.dump(params, f)
         f.close()
 
     def get_font_embeddings(self):
-        data = pickle.load(gzip.open('model.pickle.gz'))
+        data = pickle.load(gzip.open('../model.pickle.gz'))
         return data['input_font_bottleneck.W']
 
     def sets(self):
         dataset = []
         for i in xrange(self.n):
-            for j in xrange(self.k):
-                dataset.append((i, j))
+            for j in xrange(self.n):
+                dataset.append((i,j))
+            # for j in xrange(self.k):
+            #     dataset.append((i, j))
 
         train_set, test_set = cross_validation.train_test_split(dataset, test_size=0.10, random_state=0)
         return train_set, test_set
 
 def get_data():
-    if not os.path.exists('fonts.hdf5'):
-        wget.download('https://s3.amazonaws.com/erikbern/fonts.hdf5')
+    # # if not os.path.exists('fonts.hdf5'):
+    # #     wget.download('https://s3.amazonaws.com/erikbern/fonts.hdf5')
 
-    f = h5py.File('fonts.hdf5', 'r')
-    return f['fonts']
+    # f = h5py.File('fonts.hdf5','r')
+    # return f['fonts']
+
+    hdf5_path = '../dataset_fashion.hdf5'
+    fashion_train_path = '../fashion_images_resized/*.jpg'
+    addrs = glob.glob(fashion_train_path)
+
+    shape = (len(addrs), 1, 64, 64)
+
+    # open a hdf5 file and create earrays
+    hdf5_file = h5py.File(hdf5_path, mode='w')
+    hdf5_file.create_dataset("train_img", shape, np.int8)
+
+    return hdf5_file['train_img']
+
+
+
 
 def draw_grid(data, cols=None):
     n = data.shape[0]

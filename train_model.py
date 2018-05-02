@@ -5,30 +5,39 @@ import model
 import sys
 import functools
 import time
+import tensorflow as tf
+# import parse_images
 from scipy.ndimage import filters
 
+# def iterate_minibatches(dataset, batch_size=512):
 def iterate_minibatches(dataset, batch_size=512):
     random.shuffle(dataset)
     for offset in xrange(0, len(dataset), batch_size):
         s = min(batch_size, len(dataset) - offset)
         batch_fonts = numpy.zeros((s,), dtype=numpy.int32)
-        batch_chars = numpy.zeros((s,), dtype=numpy.int32)
+        # batch_chars = numpy.zeros((s,), dtype=numpy.int32)
         batch_ds = numpy.zeros((s, wh), dtype=theano.config.floatX)
         for z in xrange(s):
             i, j = dataset[offset + z]
+            # i = dataset[offset + z]
             batch_fonts[z] = i
-            batch_chars[z] = j
-            m = filters.gaussian_filter(data[i][j], sigma=random.random()*1.0) # data augmentation
+            # batch_chars[z] = j
+            # m = filters.gaussian_filter(data[i][j], sigma=random.random()*1.0) # data augmentation
+            m = filters.gaussian_filter(data[i], sigma=random.random()*1.0) # data augmentation
             batch_ds[z] = m.flatten() * 1. / 255
 
-        yield s, 1.0 * offset / len(dataset), batch_fonts, batch_chars, batch_ds
+        # yield s, 1.0 * offset / len(dataset), batch_fonts, batch_chars, batch_ds
+        yield s, 1.0 * offset / len(dataset), batch_fonts, batch_ds
+
 
         
 def iterate_run(dataset, fn, tag):
     total_loss, total_reg, total_count = 0, 0, 0
-    for s, progress, input_font, input_char, output in iterate_minibatches(dataset):
+    # for s, progress, input_font, input_char, output in iterate_minibatches(dataset):
+    for s, progress, input_font, output in iterate_minibatches(dataset):
         t0 = time.time()
-        loss, reg = fn(input_font, input_char, output)
+        # loss, reg = fn(input_font, input_char, output)
+        loss, reg = fn(input_font, output)
         t = time.time() - t0
         total_loss += float(loss) * s
         total_reg += float(reg) * s
@@ -42,8 +51,11 @@ def iterate_run(dataset, fn, tag):
 
 data = model.get_data()
 n, k = data.shape[0], data.shape[1]
+# n = data.shape[0]
 wh = data.shape[2] * data.shape[3]
+# wh = data.shape[2] * data.shape[3]
 model = model.Model(n, k, wh)
+# model = model.Model(n, wh)
 model.try_load()
 train_fn_w_learning_rate = model.get_train_fn()
 test_fn = model.get_test_fn()
