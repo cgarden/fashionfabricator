@@ -77,10 +77,10 @@ class Model(object):
         return theano.function([self.input_font, self.input_char], self.prediction_test)
 
     def try_load(self):
-        if not os.path.exists('model.pickle.gz'):
+        if not os.path.exists('../model.pickle.gz'):
             return
         print 'loading model...'
-        values = pickle.load(gzip.open('model.pickle.gz'))
+        values = pickle.load(gzip.open('../model.pickle.gz'))
         for p in lasagne.layers.get_all_params(self.network):
             if p.name not in values:
                 print 'dont have value for', p.name
@@ -96,12 +96,12 @@ class Model(object):
         params = {}
         for p in lasagne.layers.get_all_params(self.network):
             params[p.name] = p.get_value()
-        f = gzip.open('model.pickle.gz', 'w')
+        f = gzip.open('../model.pickle.gz', 'w')
         pickle.dump(params, f)
         f.close()
 
     def get_font_embeddings(self):
-        data = pickle.load(gzip.open('model.pickle.gz'))
+        data = pickle.load(gzip.open('../model.pickle.gz'))
         return data['input_font_bottleneck.W']
 
     def sets(self):
