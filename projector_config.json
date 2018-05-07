@@ -6,9 +6,9 @@
         150,
         40
       ],
-      "tensorPath": "https://gist.githubusercontent.com/cgarden/fashionfabricator/master/embedding.tsv",
+      "tensorPath": "https://raw.githubusercontent.com/cgarden/fashionfabricator/master/embedding.tsv",
       "sprite": {
-        "imagePath": "https://www.dropbox.com/s/50fc6q7hj36ehl1/sprites-2.png?dl=0",
+        "imagePath": "https://drive.google.com/open?id=1GpkLWJeVnGVrLssuSg1A5P6I2wSyajXx",
         "singleImageDim": [
           64,
           64
