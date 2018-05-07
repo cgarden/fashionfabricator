@@ -1,12 +1,12 @@
 {
   "embeddings": [
     {
-      "tensorName": "My tensor",
+      "tensorName": "Fashion Fabricator",
       "tensorShape": [
         150,
         40
       ],
-      "tensorPath": "https://github.com/cgarden/fashionfabricator/blob/master/embedding.tsv",
+      "tensorPath": "https://raw.githubusercontent.com/cgarden/fashionfabricator/master/embedding.tsv",
       "sprite": {
         "imagePath": "https://github.com/cgarden/fashionfabricator/blob/master/sprites.png",
         "singleImageDim": [
