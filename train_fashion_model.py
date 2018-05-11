@@ -53,14 +53,10 @@ def iterate_run(dataset, fn, tag):
 data = fashion_model.get_data()
 print data
 n, k = data.shape[0], data.shape[1]
-# n = data.shape[0]
 wh = data.shape[2] * data.shape[3]
-# wh = data.shape[2] * data.shape[3]
 fashion_model = fashion_model.Model(n, k, wh)
-# model = model.Model(n, wh)
 fashion_model.try_load()
 train_fn_w_learning_rate = fashion_model.get_train_fn()
-# print train_fn_w_learning_rate
 test_fn = fashion_model.get_test_fn()
 run_fn = fashion_model.get_run_fn()
 train_set, test_set = fashion_model.sets()

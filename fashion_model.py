@@ -71,17 +71,14 @@ class Model(object):
         params = lasagne.layers.get_all_params(self.network, trainable=True)
         updates = lasagne.updates.nesterov_momentum(self.loss_train + self.reg, params, learning_rate=learning_rate, momentum=lasagne.utils.floatX(0.9))
         return theano.function([learning_rate, self.input_fashion, self.input_dress, self.target], [self.loss_train, self.reg], updates=updates, allow_input_downcast=True)
-        # return theano.function([learning_rate, self.input_fashion, self.target], [self.loss_train, self.reg], updates=updates, allow_input_downcast=True)
 
     def get_test_fn(self):
         print 'compiling testing fn'
         params = lasagne.layers.get_all_params(self.network, trainable=False)
         return theano.function([self.input_fashion, self.input_dress, self.target], [self.loss_test, self.reg], allow_input_downcast=True)
-        # return theano.function([self.input_fashion, self.target], [self.loss_test, self.reg], allow_input_downcast=True)
 
     def get_run_fn(self):
         return theano.function([self.input_fashion, self.input_dress], self.prediction_test, allow_input_downcast=True)
-        # return theano.function([self.input_fashion], self.prediction_test, allow_input_downcast=True)
 
     def try_load(self):
         if not os.path.exists('../f_model.pickle.gz'):

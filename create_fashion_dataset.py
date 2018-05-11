@@ -14,8 +14,6 @@ fashion_train_path = '../fashion_images_resized/*.jpg'
 addrs = glob.glob(fashion_train_path)
 # print addrs
 
-# blank = PIL.Image.new('RGB', (w0*4, h0*4), 255)
-
 def read_clothing(addr):
     print addr
 
@@ -25,7 +23,6 @@ def read_clothing(addr):
     img = PIL.Image.open(addr)
 
     # Convert to numpy array
-    # print img.getdata()
     matrix = numpy.array(img.getdata())
     # print matrix
     matrix = 255 - matrix

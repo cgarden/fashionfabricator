@@ -6,9 +6,9 @@
         150,
         40
       ],
-      "tensorPath": "https://raw.githubusercontent.com/cgarden/fashionfabricator/master/embedding.tsv",
+      "tensorPath": "https://gist.githubusercontent.com/cgarden/071532979c207efd9b2ba8cf41b576d0/raw/2bb2feef59e654f1bf7f399b58920e44f801483e/embedding.tsv",
       "sprite": {
-        "imagePath": "http://web.mit.edu/cgarden/www/sprites-2.png",
+        "imagePath": "https://doc-00-bo-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/6lsf36tqk01ak3b7uasts8ulo7ka9k5h/1525708800000/17874795585919509461/*/1GpkLWJeVnGVrLssuSg1A5P6I2wSyajXx",
         "singleImageDim": [
           64,
           64
