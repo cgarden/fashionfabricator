@@ -34,16 +34,26 @@ def loss(a, b):
 # D = width of Dense layer
 
 # Trial #1
-# d=40, D=1024, path='../f_model.pickle.gz'
+# d=40
+# D=1024
+# path_write='../f_model.pickle.gz'
 
+# Trial #2
+# Embeddings have width 2
 d=3
 D=32
-path='../f_model2.pickle.gz'
+path_write='../f_model2.pickle.gz'
+
+# 150 Color images
+# path_read = 'fashion.hdf5'
+
+# 150 greyscaled images
+path_read = 'fashion_grey.hdf5'
 
 
 
 class Model(object):
-    def __init__(self, n=None, k=1,  wh=64*64*3, d=d, D=D, lambd=1e-7, font_noise=0.03, artificial_font=False):
+    def __init__(self, n=None, k=1,  wh=64*64, d=d, D=D, lambd=1e-7, font_noise=0.03, artificial_font=False):
         self.n, self.k, self.d = n, k, d
         self.target = T.matrix('target')
 
@@ -112,12 +122,12 @@ class Model(object):
         params = {}
         for p in lasagne.layers.get_all_params(self.network):
             params[p.name] = p.get_value()
-        f = gzip.open(path, 'w')
+        f = gzip.open(path_write, 'w')
         pickle.dump(params, f)
         f.close()
 
     def get_font_embeddings(self):
-        data = pickle.load(gzip.open(path))
+        data = pickle.load(gzip.open(path_write))
         return data['input_font_bottleneck.W']
 
     def sets(self):
@@ -131,7 +141,7 @@ class Model(object):
 
 def get_data():
 
-    f = h5py.File('fashion.hdf5','r')
+    f = h5py.File(path_read,'r')
     return f['fashion']
 
 
@@ -142,12 +152,12 @@ def draw_grid(data, cols=None):
     if cols is None:
         cols = int(math.ceil(n**0.5))
     rows = int(math.ceil(1.0 * n / cols))
-    data = data.reshape((n, 64*3, 64))
+    data = data.reshape((n, 64, 64))
 
-    img = PIL.Image.new('L', (cols * 64*3, rows * 64), 255)
+    img = PIL.Image.new('L', (cols * 64, rows * 64), 255)
     for z in xrange(n):
         x, y = z % cols, z // cols
         img_char = PIL.Image.fromarray(numpy.uint8(((1.0 - data[z]) * 255)))
-        img.paste(img_char, (x * 64*3, y * 64))
+        img.paste(img_char, (x * 64, y * 64))
 
     return img
