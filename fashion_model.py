@@ -31,7 +31,7 @@ def loss(a, b):
 
 
 class Model(object):
-    def __init__(self, n=None, k=1,  wh=64*64, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
+    def __init__(self, n=None, k=1,  wh=64*64*3, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
         self.n, self.k, self.d = n, k, d
         self.target = T.matrix('target')
 
@@ -130,12 +130,12 @@ def draw_grid(data, cols=None):
     if cols is None:
         cols = int(math.ceil(n**0.5))
     rows = int(math.ceil(1.0 * n / cols))
-    data = data.reshape((n, 64, 64))
+    data = data.reshape((n, 64*3, 64))
 
-    img = PIL.Image.new('L', (cols * 64, rows * 64), 255)
+    img = PIL.Image.new('L', (cols * 64*3, rows * 64), 255)
     for z in xrange(n):
         x, y = z % cols, z // cols
         img_char = PIL.Image.fromarray(numpy.uint8(((1.0 - data[z]) * 255)))
-        img.paste(img_char, (x * 64, y * 64))
+        img.paste(img_char, (x * 64*3, y * 64))
 
     return img

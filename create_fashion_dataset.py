@@ -7,7 +7,7 @@ import numpy
 import sys
 import glob
 
-w, h = 64, 64
+w, h = 64, 64*3
 w0, h0 = 256, 256
 
 fashion_train_path = '../fashion_images_resized/*.jpg'
@@ -24,10 +24,10 @@ def read_clothing(addr):
 
     # Convert to numpy array
     matrix = numpy.array(img.getdata())
-    # print matrix
+    print matrix
     matrix = 255 - matrix
-    resized = numpy.resize(matrix,(64,64))
-    # print resized
+    resized = numpy.resize(matrix,(64*3,64))
+    print resized
     data.append(resized)
 
     return numpy.array(data)

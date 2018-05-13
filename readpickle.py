@@ -47,7 +47,7 @@ print len(mydict['input_font_bottleneck.W'][0])
 # writer.list_line(["Column 1", "Column 2"] + list(range(10)))
 # writer.close()
 
-writer = tsv.TsvWriter(open("embedding.tsv", "w"))
+writer = tsv.TsvWriter(open("embedding_reordered.tsv", "w"))
 
 for row in mydict['input_font_bottleneck.W']:
 	writer.list_line(row)
