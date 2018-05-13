@@ -77,9 +77,14 @@ class Model(object):
 
         input_fashion_bottleneck_noised = lasagne.layers.GaussianNoiseLayer(input_font_bottleneck, sigma=font_noise)
         network = lasagne.layers.ConcatLayer([input_fashion_bottleneck_noised, input_dress_one_hot], name='input_concat')
+
+        # # Convolutional Layer
+        # network = lasagne.layers.Conv1DLayer(network, D, 9, 1, 0, name='conv', nonlinearity=lasagne.nonlinearities.leaky_rectify)
+
         # 4 fully connected layers
         for i in xrange(4):
             network = lasagne.layers.DenseLayer(network, D, name='dense_%d' % i, nonlinearity=lasagne.nonlinearities.leaky_rectify)
+
 
         network = lasagne.layers.DenseLayer(network, wh, nonlinearity=lasagne.nonlinearities.sigmoid, name='output_sigmoid')
         self.network = network

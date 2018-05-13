@@ -10,7 +10,8 @@ import glob
 w, h = 64, 64
 w0, h0 = 256, 256
 
-fashion_train_path = '../fashion_images_resized/*.jpg'
+# fashion_train_path = '../fashion_images_resized/*.jpg'
+fashion_train_path = '../png_fashion_images/*.png'
 addrs = glob.glob(fashion_train_path)
 
 # 150 Color Images
@@ -38,11 +39,12 @@ def read_clothing(addr, greyscale=True):
     matrix = 255 - matrix
     if greyscale:
         new_matrix = numpy.mean(matrix, axis=1)
-        print new_matrix
+        print "new matrix", new_matrix
         print new_matrix.shape
+        new_new_matrix = numpy.resize(new_matrix,(w*h))
     else:
-        new_matrix = matrix
-    resized = numpy.resize(matrix,(h,w))
+        new_new_matrix = matrix
+    resized = numpy.resize(new_new_matrix,(h,w))
     print resized
     print resized.shape
     print '########'
