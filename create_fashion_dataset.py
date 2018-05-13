@@ -32,9 +32,9 @@ def read_clothing(addr):
 
     return numpy.array(data)
 
-
-                
+# Images in standard order              
 f = h5py.File('fashion.hdf5', 'w')
+
 dset = f.create_dataset('fashion', (1, 1, h, w), chunks=(1, 1, h, w), maxshape=(None, 1, h, w), dtype='u1')
 
 i = 0

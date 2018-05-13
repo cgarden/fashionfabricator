@@ -29,9 +29,21 @@ def loss(a, b):
     # return 0.5 * abs(a-b) + 0.5 * (a - b)**2
     return abs(a-b)
 
+# Different values of d and D to try
+# d = width of embeddings vector
+# D = width of Dense layer
+
+# Trial #1
+# d=40, D=1024, path='../f_model.pickle.gz'
+
+d=3
+D=32
+path='../f_model2.pickle.gz'
+
+
 
 class Model(object):
-    def __init__(self, n=None, k=1,  wh=64*64*3, d=40, D=1024, lambd=1e-7, font_noise=0.03, artificial_font=False):
+    def __init__(self, n=None, k=1,  wh=64*64*3, d=d, D=D, lambd=1e-7, font_noise=0.03, artificial_font=False):
         self.n, self.k, self.d = n, k, d
         self.target = T.matrix('target')
 
@@ -100,12 +112,12 @@ class Model(object):
         params = {}
         for p in lasagne.layers.get_all_params(self.network):
             params[p.name] = p.get_value()
-        f = gzip.open('../f_model.pickle.gz', 'w')
+        f = gzip.open(path, 'w')
         pickle.dump(params, f)
         f.close()
 
     def get_font_embeddings(self):
-        data = pickle.load(gzip.open('../f_model.pickle.gz'))
+        data = pickle.load(gzip.open(path))
         return data['input_font_bottleneck.W']
 
     def sets(self):
