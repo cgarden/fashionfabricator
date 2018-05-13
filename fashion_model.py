@@ -38,10 +38,14 @@ def loss(a, b):
 # D=1024
 # path_write='../f_model.pickle.gz'
 
+# # Trial #2
+# d=3
+# D=32
+# path_write='../f_model2.pickle.gz'
+
 # Trial #2
-# Embeddings have width 2
 d=3
-D=32
+D=8
 path_write='../f_model2.pickle.gz'
 
 # 150 Color images
