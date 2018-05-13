@@ -107,10 +107,10 @@ class Model(object):
         return theano.function([self.input_fashion, self.input_dress], self.prediction_test, allow_input_downcast=True)
 
     def try_load(self):
-        if not os.path.exists('../f_model.pickle.gz'):
+        if not os.path.exists(path_write):
             return
         print 'loading model...'
-        values = pickle.load(gzip.open('../f_model.pickle.gz'))
+        values = pickle.load(gzip.open(path_write))
         for p in lasagne.layers.get_all_params(self.network):
             if p.name not in values:
                 print 'dont have value for', p.name
