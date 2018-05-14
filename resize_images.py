@@ -1,4 +1,4 @@
-from PIL import Image
+import PIL, PIL.Image
 from resizeimage import resizeimage
 import glob
 
