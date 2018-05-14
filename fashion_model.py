@@ -49,15 +49,21 @@ def loss(a, b):
 # path_write='../f_model2.pickle.gz'
 
 # Trial #4
-d=10
-D=16
-path_write='../f_model2.pickle.gz'
+# d=10
+# D=16
+# path_write='../f_model2.pickle.gz'
 
 # 150 Color images
 # path_read = 'fashion.hdf5'
 
-# 150 greyscaled images
-path_read = 'fashion_grey.hdf5'
+# # 150 greyscaled images
+# path_read = 'fashion_grey.hdf5'
+
+# Deepfashion Dataset
+d=40
+D=1024
+path_write='../model.pickle.gz'
+path_read = '../G2.h5'
 
 
 

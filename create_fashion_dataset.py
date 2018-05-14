@@ -11,16 +11,20 @@ w, h = 64, 64
 w0, h0 = 256, 256
 
 # fashion_train_path = '../fashion_images_resized/*.jpg'
-fashion_train_path = '../png_fashion_images/*.png'
-addrs = glob.glob(fashion_train_path)
+# fashion_train_path = '../png_fashion_images/*.png'
+# addrs = glob.glob(fashion_train_path)
 
 # 150 Color Images
 # greyscale = False
 # path_write = 'fashion.hdf5'
 
 #150 Greyscale Images
-greyscale = True
-path_write = 'fashion_grey.hdf5'
+# greyscale = True
+# path_write = 'fashion_grey.hdf5'
+
+# Deepfashion Dataset
+fashion_train_path = '../png_fashion_images/*.png'
+addrs = glob.glob(fashion_train_path)
 
 # print addrs
 

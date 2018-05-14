@@ -62,8 +62,8 @@ run_fn = fashion_model.get_run_fn()
 train_set, test_set = fashion_model.sets()
 
 print 'training...'
-for learning_rate in [1.0, 0.3, 0.1, 0.03, 0.01]:
-# for learning_rate in [1.0]:
+# for learning_rate in [1.0, 0.3, 0.1, 0.03, 0.01]:
+for learning_rate in [1.0]:
     epoch, last_loss = 0, float('inf')
     while True:
         print 'epoch', epoch, 'learning rate', learning_rate
