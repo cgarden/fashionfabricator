@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np
 
 # filename = 'fashion_grey.hdf5'
-filename = 'G2.h5'
+filename = '../G2.h5'
 f = h5py.File(filename, 'r')
 
 # List all groups
