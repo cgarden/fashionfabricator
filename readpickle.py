@@ -12,7 +12,7 @@ import tsv
 file_read = '../f_model2.pickle.gz'
 # file_write = 'embedding_2.tsv'
 
-file_write = 'embedding_grey_fc8.tsv'
+file_write = 'embedding_grey_fc2.tsv'
 
 f = gzip.open(file_read)   # 'r' for reading; can be omitted
 mydict = pickle.load(f)         # load file content as mydict

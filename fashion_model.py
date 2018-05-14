@@ -43,9 +43,14 @@ def loss(a, b):
 # D=32
 # path_write='../f_model2.pickle.gz'
 
-# Trial #2
+# # Trial #3
+# d=3
+# D=8
+# path_write='../f_model2.pickle.gz'
+
+# Trial #4
 d=3
-D=8
+D=2
 path_write='../f_model2.pickle.gz'
 
 # 150 Color images
